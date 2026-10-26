@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1 Dollar Brick - Collaborative Pixel Art Wall</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        pixel: ['"Press Start 2P"', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-short': 'bounceShort 0.5s ease infinite alternate',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 15px rgba(245, 158, 11, 0.6)' },
+                            '50%': { opacity: 0.7, boxShadow: '0 0 5px rgba(245, 158, 11, 0.2)' },
+                        },
+                        bounceShort: {
+                            '0%': { transform: 'translateY(0)' },
+                            '100%': { transform: 'translateY(-6px)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Brick Textures */
+        .brick-texture-classic {
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%);
+            box-shadow: inset 2px 2px 0px rgba(255,255,255,0.4), inset -2px -2px 0px rgba(0,0,0,0.4), 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+        .brick-texture-gold {
+            background: linear-gradient(135deg, #fef08a 0%, #d97706 50%, #78350f 100%);
+            box-shadow: inset 2px 2px 0px #fffbeb, inset -2px -2px 0px #451a03, 0 0 12px rgba(245,158,11,0.5);
+        }
+        .brick-texture-neon {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+            box-shadow: inset 2px 2px 0px #f472b6, inset -2px -2px 0px #1e1b4b, 0 0 15px rgba(236,72,153,0.6);
+        }
+        .brick-texture-diamond {
+            background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 50%, #1e40af 100%);
+            box-shadow: inset 2px 2px 0px #ffffff, inset -2px -2px 0px #1e3a8a, 0 0 15px rgba(56,189,248,0.7);
+        }
+
+        /* Grid Pattern Background */
+        .blueprint-bg {
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col font-sans antialiased overflow-hidden">
+
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 z-30 px-4 py-3 shrink-0">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Logo & Tagline -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-amber-500/20 animate-bounce-short">
+                    🧱
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 via-rose-400 to-purple-400 bg-clip-text text-transparent">
+                        1 DOLLAR BRICK
+                    </h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                        <span>Community Pixel Art</span>
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-slate-500">| 1 € / $ per Brick</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Active Artwork Progress -->
+            <div class="flex-1 max-w-md hidden md:block">
+                <div class="flex justify-between text-xs mb-1 font-semibold">
+                    <span id="header-figure-name" class="text-amber-400 flex items-center gap-1">
+                        <i class="fa-solid fa-paintbrush"></i> Loading figure...
+                    </span>
+                    <span id="header-figure-progress-text" class="text-slate-300">0 / 50 Bricks (0%)</span>
+                </div>
+                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                    <div id="header-progress-bar" class="h-full bg-gradient-to-r from-amber-500 via-rose-500 to-purple-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Sound Toggle -->
+                <button id="sound-toggle" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition" title="Toggle Sound FX">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+
+                <!-- Museum / Gallery Button -->
+                <button id="btn-museum" class="px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-700 text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-monument text-amber-400"></i>
+                    <span>Museum (<span id="museum-count">0</span>)</span>
+                </button>
+
+                <!-- Leaderboard Button -->
+                <button id="btn-leaderboard" class="px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-700 text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span>Top Donors</span>
+                </button>
+
+                <!-- Center View -->
+                <button id="btn-recenter" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 hover:opacity-95 transition">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <span class="hidden sm:inline">Center Canvas</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWPORT CONTAINER (PAN & ZOOM CANVAS) -->
+    <main id="viewport" class="flex-1 relative cursor-grab active:cursor-grabbing overflow-hidden blueprint-bg">
+        
+        <!-- Floating Info Badge (Active Figure) -->
+        <div class="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-xl max-w-xs">
+            <div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">Current Artwork</div>
+            <div id="card-figure-title" class="text-base font-extrabold text-amber-400 flex items-center gap-2">
+                <span>🎨</span> Loading...
+            </div>
+            <p id="card-figure-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">
+                Click any glowing empty slot to donate 1€ and claim your brick!
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-xs">
+                <span class="text-slate-400">Total Donated:</span>
+                <span id="stat-total-raised" class="font-extrabold text-emerald-400">$0.00</span>
+            </div>
+        </div>
+
+        <!-- Floating Controls (Zoom & Quick Tools) -->
+        <div class="absolute bottom-6 right-6 z-20 flex flex-col gap-2">
+            <button id="btn-zoom-in" class="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-800 flex items-center justify-center shadow-lg transition">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            <button id="btn-zoom-out" class="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-800 flex items-center justify-center shadow-lg transition">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <button id="btn-reset-zoom" class="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-800 flex items-center justify-center shadow-lg transition text-xs font-bold" title="Reset Zoom">
+                100%
+            </button>
+        </div>
+
+        <!-- CANVAS STAGE (TRANSFORMED BY JS) -->
+        <div id="canvas-world" class="absolute origin-center transition-transform duration-75 ease-out flex items-center justify-center" style="transform: translate(0px, 0px) scale(1);">
+            
+            <!-- Artwork Grid Workspace -->
+            <div id="art-grid-container" class="relative bg-slate-900/60 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+                
+                <!-- Grid header banner inside world -->
+                <div class="text-center mb-6">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">
+                        Pixel Art Construction Site
+                    </span>
+                    <h2 id="grid-artwork-name" class="text-2xl font-black text-white">Active Artwork</h2>
+                </div>
+
+                <!-- Interactive Bricks Grid -->
+                <div id="pixel-grid" class="grid gap-2 justify-center items-center">
+                    <!-- Dynamic Brick Slots Injected Here by JS -->
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL 1: BRICK DONATION / CUSTOMIZATION -->
+    <div id="modal-donate" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-float">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🧱</span>
+                    <h3 class="font-extrabold text-lg text-white">Claim Your Brick</h3>
+                </div>
+                <button class="btn-close-modal text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Form -->
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                
+                <!-- Slot Summary -->
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between text-xs">
+                    <span class="text-slate-300">Selected Position:</span>
+                    <span id="donate-slot-coords" class="font-bold text-amber-400">Slot #12 (Figure: Mushroom)</span>
+                </div>
+
+                <!-- Nickname Input -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Your Name / Nickname *</label>
+                    <input type="text" id="input-nickname" placeholder="e.g. Satoshi_N, CryptoFan, Alex" maxlength="20" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition text-sm">
+                </div>
+
+                <!-- Dedicated Message -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Message / Dedication (Optional)</label>
+                    <input type="text" id="input-message" placeholder="e.g. Hello world! Building the future." maxlength="60" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition text-sm">
+                </div>
+
+                <!-- Social Link / Handle -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Social Handle or Link (Optional)</label>
+                    <input type="text" id="input-social" placeholder="e.g. @yourhandle or https://mysite.com" maxlength="50" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition text-sm">
+                </div>
+
+                <!-- Customization Grid -->
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <!-- Palette Picker -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Color Palette</label>
+                        <div id="palette-options" class="grid grid-cols-4 gap-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Texture / Material -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Brick Material</label>
+                        <select id="select-texture" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                            <option value="classic">Standard Matte</option>
+                            <option value="gold">Luxe Gold ✨</option>
+                            <option value="neon">Cyber Neon 🎆</option>
+                            <option value="diamond">Diamond Shimmer 💎</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Emoji Picker -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Badge Emoji</label>
+                    <div id="emoji-options" class="flex flex-wrap gap-2">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Live Preview Card -->
+                <div class="pt-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Live Preview</label>
+                    <div class="flex justify-center">
+                        <div id="preview-brick-box" class="w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-bold text-xs text-white shadow-xl relative transition-all duration-300">
+                            <span id="preview-brick-emoji" class="text-xl">👑</span>
+                            <span id="preview-brick-name" class="truncate max-w-[70px] mt-1 text-[10px]">Nick</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer / Checkout -->
+            <div class="px-6 py-4 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between">
+                <div>
+                    <div class="text-xs text-slate-400">Total Amount</div>
+                    <div class="text-xl font-black text-amber-400">$1.00 USD / 1.00 €</div>
+                </div>
+
+                <!-- Simulated PayPal Checkout Button -->
+                <button id="btn-pay-paypal" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-extrabold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition flex items-center gap-2">
+                    <i class="fa-brands fa-paypal text-base"></i>
+                    <span>Donate $1.00 & Place</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: BRICK DETAILS INSPECTOR -->
+    <div id="modal-inspect" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+            
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🔍</span>
+                    <h3 class="font-extrabold text-lg text-white">Brick Details</h3>
+                </div>
+                <button class="btn-close-modal text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 text-center space-y-4">
+                <!-- Large Brick Display -->
+                <div class="flex justify-center">
+                    <div id="inspect-brick-box" class="w-24 h-24 rounded-3xl flex flex-col items-center justify-center text-white shadow-2xl relative">
+                        <span id="inspect-brick-emoji" class="text-3xl">👑</span>
+                        <span id="inspect-brick-name" class="font-bold text-xs truncate max-w-[80px] mt-1">Satoshi</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 id="inspect-donor-name" class="text-xl font-black text-amber-400">Donor Name</h4>
+                    <p id="inspect-brick-id" class="text-xs text-slate-500 mt-0.5">Brick #14 • Artwork: Cute Cat</p>
+                </div>
+
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 text-xs text-slate-300 italic">
+                    "<span id="inspect-message">No message provided.</span>"
+                </div>
+
+                <div id="inspect-social-container" class="hidden">
+                    <a id="inspect-social-link" href="#" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-rose-400 hover:underline">
+                        <i class="fa-solid fa-link"></i>
+                        <span id="inspect-social-text">@handle</span>
+                    </a>
+                </div>
+
+                <!-- Interactive Like Button -->
+                <div class="pt-2 flex justify-center gap-3">
+                    <button id="btn-like-brick" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:text-rose-400 hover:border-rose-500/50 text-xs font-bold flex items-center gap-2 transition">
+                        <i class="fa-solid fa-heart text-rose-500"></i>
+                        <span id="inspect-like-count">0</span> Likes
+                    </button>
+                    <button id="btn-download-cert" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:text-amber-400 hover:border-amber-500/50 text-xs font-bold flex items-center gap-2 transition">
+                        <i class="fa-solid fa-certificate text-amber-400"></i>
+                        <span>Certificate</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL 3: MUSEUM / ARCHIVED GALLERY -->
+    <div id="modal-museum" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col">
+            
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-monument text-amber-400 text-xl"></i>
+                    <h3 class="font-extrabold text-lg text-white">Completed Artworks Museum</h3>
+                </div>
+                <button class="btn-close-modal text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="museum-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL 4: LEADERBOARD -->
+    <div id="modal-leaderboard" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+            
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400 text-xl"></i>
+                    <h3 class="font-extrabold text-lg text-white">Top Community Architects</h3>
+                </div>
+                <button class="btn-close-modal text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-3 max-h-[60vh] overflow-y-auto" id="leaderboard-list">
+                <!-- Injected by JS -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- HIDDEN CANVAS FOR CERTIFICATE GENERATION -->
+    <canvas id="cert-canvas" width="800" height="500" class="hidden"></canvas>
+
+    <!-- MAIN JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- 1. GAME STATE & DATA STRUCTURES ---
+        const PALETTES = [
+            '#ef4444', '#f97316', '#f59e0b', '#10b981', 
+            '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
+        ];
+        const EMOJIS = ['👑', '🚀', '❤️', '⚡', '💎', '🎮', '🧱', '🔥', '🌟', '🐱'];
+
+        // Preset Figure Templates (~40-50 blocks each)
+        const FIGURE_TEMPLATES = [
+            {
+                id: 'cat',
+                name: 'Cute Pixel Cat 🐱',
+                gridCols: 7,
+                gridRows: 7,
+                // 1 = filled brick slot, 0 = empty space
+                layout: [
+                    1,0,0,0,0,0,1,
+                    1,1,0,0,0,1,1,
+                    1,1,1,1,1,1,1,
+                    1,0,1,1,1,0,1,
+                    1,1,1,1,1,1,1,
+                    0,1,1,1,1,1,0,
+                    0,1,0,0,0,1,0
+                ]
+            },
+            {
+                id: 'mushroom',
+                name: 'Super Mushroom 🍄',
+                gridCols: 7,
+                gridRows: 7,
+                layout: [
+                    0,1,1,1,1,1,0,
+                    1,1,1,1,1,1,1,
+                    1,1,1,1,1,1,1,
+                    1,1,1,1,1,1,1,
+                    0,1,1,1,1,1,0,
+                    0,0,1,1,1,0,0,
+                    0,0,1,1,1,0,0
+                ]
+            },
+            {
+                id: 'rocket',
+                name: 'Cosmic Rocket 🚀',
+                gridCols: 7,
+                gridRows: 8,
+                layout: [
+                    0,0,0,1,0,0,0,
+                    0,0,1,1,1,0,0,
+                    0,0,1,1,1,0,0,
+                    0,0,1,1,1,0,0,
+                    0,1,1,1,1,1,0,
+                    1,1,1,1,1,1,1,
+                    1,0,1,0,1,0,1,
+                    1,0,0,0,0,0,1
+                ]
+            },
+            {
+                id: 'duck',
+                name: 'Rubber Duck 🦆',
+                gridCols: 7,
+                gridRows: 7,
+                layout: [
+                    0,0,1,1,1,0,0,
+                    0,1,1,1,1,1,0,
+                    0,0,1,1,1,0,0,
+                    0,1,1,1,1,1,0,
+                    1,1,1,1,1,1,1,
+                    1,1,1,1,1,1,1,
+                    0,1,1,1,1,1,0
+                ]
+            },
+            {
+                id: 'heart',
+                name: 'Pixel Heart ❤️',
+                gridCols: 7,
+                gridRows: 7,
+                layout: [
+                    0,1,1,0,1,1,0,
+                    1,1,1,1,1,1,1,
+                    1,1,1,1,1,1,1,
+                    1,1,1,1,1,1,1,
+                    0,1,1,1,1,1,0,
+                    0,0,1,1,1,0,0,
+                    0,0,0,1,0,0,0
+                ]
+            }
+        ];
+
+        // State variables
+        let soundEnabled = true;
+        let activeFigureIndex = 0;
+        let activeFigure = null;
+        let placedBricks = {}; // key: slotIndex, val: brickObj
+        let completedMuseum = []; // Array of completed figure objects
+        let selectedSlotIndex = null;
+        let selectedInspectBrick = null;
+
+        // Form Customization State
+        let currentFormColor = PALETTES[0];
+        let currentFormEmoji = EMOJIS[0];
+
+        // Pan & Zoom Camera State
+        let scale = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        // --- 2. WEB AUDIO SYNTHESIZER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'brick') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'fanfare') {
+                    const notes = [261.63, 329.63, 392.00, 523.25];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+                        g.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.1);
+                        g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.25);
+                        o.start(audioCtx.currentTime + idx * 0.1);
+                        o.stop(audioCtx.currentTime + idx * 0.1 + 0.25);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // --- 3. INITIALIZATION & SETUP ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalData();
+            initActiveFigure();
+            renderPaletteOptions();
+            renderEmojiOptions();
+            setupCameraControls();
+            setupEventListeners();
+            updateUI();
+        });
+
+        function loadLocalData() {
+            const savedBricks = localStorage.getItem('1dollarbrick_placed');
+            if (savedBricks) placedBricks = JSON.parse(savedBricks);
+
+            const savedMuseum = localStorage.getItem('1dollarbrick_museum');
+            if (savedMuseum) completedMuseum = JSON.parse(savedMuseum);
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('1dollarbrick_placed', JSON.stringify(placedBricks));
+            localStorage.setItem('1dollarbrick_museum', JSON.stringify(completedMuseum));
+        }
+
+        function initActiveFigure() {
+            activeFigure = FIGURE_TEMPLATES[activeFigureIndex % FIGURE_TEMPLATES.length];
+            renderGrid();
+        }
+
+        // --- 4. GRID RENDER ENGINE ---
+        function renderGrid() {
+            const gridEl = document.getElementById('pixel-grid');
+            gridEl.innerHTML = '';
+            gridEl.style.gridTemplateColumns = `repeat(${activeFigure.gridCols}, minmax(0, 1fr))`;
+
+            document.getElementById('grid-artwork-name').innerText = activeFigure.name;
+            document.getElementById('card-figure-title').innerHTML = `<span>🎨</span> ${activeFigure.name}`;
+
+            let totalValidSlots = 0;
+            let filledSlots = 0;
+
+            activeFigure.layout.forEach((isSlot, idx) => {
+                if (isSlot === 0) {
+                    // Empty non-buildable space
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'w-14 h-14 opacity-0 pointer-events-none';
+                    gridEl.appendChild(emptyDiv);
+                    return;
+                }
+
+                totalValidSlots++;
+                const brickData = placedBricks[idx];
+
+                if (brickData) {
+                    filledSlots++;
+                    // Render Placed Brick
+                    const brickBtn = document.createElement('button');
+                    brickBtn.className = `w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-white relative transition-transform hover:scale-110 shadow-lg brick-texture-${brickData.texture || 'classic'}`;
+                    brickBtn.style.backgroundColor = brickData.color || '#3b82f6';
+                    brickBtn.innerHTML = `
+                        <span class="text-lg pointer-events-none">${brickData.emoji || '🧱'}</span>
+                        <span class="text-[9px] font-bold truncate max-w-[48px] px-1 pointer-events-none">${brickData.name}</span>
+                    `;
+                    brickBtn.onclick = () => openInspectModal(idx, brickData);
+                    gridEl.appendChild(brickBtn);
+                } else {
+                    // Render Printable Empty Slot (+)
+                    const slotBtn = document.createElement('button');
+                    slotBtn.className = 'w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400/50 bg-amber-500/10 hover:bg-amber-500/30 hover:border-amber-400 flex flex-col items-center justify-center text-amber-300 transition-all duration-300 animate-pulse-glow hover:scale-105';
+                    slotBtn.innerHTML = `
+                        <i class="fa-solid fa-plus text-lg"></i>
+                        <span class="text-[9px] font-bold opacity-80">1 €</span>
+                    `;
+                    slotBtn.onclick = () => openDonateModal(idx);
+                    gridEl.appendChild(slotBtn);
+                }
+            });
+
+            // Update Progress Bar & Stats
+            const percentage = Math.round((filledSlots / totalValidSlots) * 100) || 0;
+            document.getElementById('header-figure-name').innerHTML = `<i class="fa-solid fa-paintbrush"></i> ${activeFigure.name}`;
+            document.getElementById('header-figure-progress-text').innerText = `${filledSlots} / ${totalValidSlots} Bricks (${percentage}%)`;
+            document.getElementById('header-progress-bar').style.width = `${percentage}%`;
+
+            const totalRaised = (Object.keys(placedBricks).length + (completedMuseum.length * 50)).toFixed(2);
+            document.getElementById('stat-total-raised').innerText = `$${totalRaised} USD`;
+            document.getElementById('museum-count').innerText = completedMuseum.length;
+
+            // Check if Artwork Completed
+            if (filledSlots === totalValidSlots && totalValidSlots > 0) {
+                triggerArtworkCompletion();
+            }
+        }
+
+        // --- 5. CAMERA PAN & ZOOM LOGIC ---
+        function setupCameraControls() {
+            const viewport = document.getElementById('viewport');
+            const world = document.getElementById('canvas-world');
+
+            function applyTransform() {
+                world.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            }
+
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button')) return;
+                isDragging = true;
+                startX = e.clientX - panX;
+                startY = e.clientY - panY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                panX = e.clientX - startX;
+                panY = e.clientY - startY;
+                applyTransform();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            // Mouse Wheel Zoom
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+                scale = Math.min(Math.max(0.5, scale * zoomFactor), 2.5);
+                applyTransform();
+            });
+
+            // Zoom Buttons
+            document.getElementById('btn-zoom-in').onclick = () => {
+                scale = Math.min(2.5, scale * 1.25);
+                applyTransform();
+            };
+            document.getElementById('btn-zoom-out').onclick = () => {
+                scale = Math.max(0.5, scale / 1.25);
+                applyTransform();
+            };
+            document.getElementById('btn-reset-zoom').onclick = () => {
+                scale = 1;
+                panX = 0;
+                panY = 0;
+                applyTransform();
+            };
+            document.getElementById('btn-recenter').onclick = () => {
+                scale = 1;
+                panX = 0;
+                panY = 0;
+                applyTransform();
+                playSound('click');
+            };
+        }
+
+        // --- 6. FORM & CUSTOMIZATION CONTROLS ---
+        function renderPaletteOptions() {
+            const container = document.getElementById('palette-options');
+            container.innerHTML = '';
+            PALETTES.forEach((color, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-7 h-7 rounded-xl transition-transform ${idx === 0 ? 'ring-2 ring-white scale-110' : 'hover:scale-105'}`;
+                btn.style.backgroundColor = color;
+                btn.onclick = () => {
+                    currentFormColor = color;
+                    Array.from(container.children).forEach(c => c.classList.remove('ring-2', 'ring-white', 'scale-110'));
+                    btn.classList.add('ring-2', 'ring-white', 'scale-110');
+                    updatePreview();
+                    playSound('click');
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderEmojiOptions() {
+            const container = document.getElementById('emoji-options');
+            container.innerHTML = '';
+            EMOJIS.forEach((emoji, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 text-sm flex items-center justify-center transition ${idx === 0 ? 'border-amber-400 bg-slate-700 scale-110' : 'hover:bg-slate-700'}`;
+                btn.innerText = emoji;
+                btn.onclick = () => {
+                    currentFormEmoji = emoji;
+                    Array.from(container.children).forEach(c => c.classList.remove('border-amber-400', 'bg-slate-700', 'scale-110'));
+                    btn.classList.add('border-amber-400', 'bg-slate-700', 'scale-110');
+                    updatePreview();
+                    playSound('click');
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function updatePreview() {
+            const box = document.getElementById('preview-brick-box');
+            const nameInput = document.getElementById('input-nickname').value || 'Nick';
+            const texture = document.getElementById('select-texture').value;
+
+            box.style.backgroundColor = currentFormColor;
+            box.className = `w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-bold text-xs text-white shadow-xl relative transition-all duration-300 brick-texture-${texture}`;
+            document.getElementById('preview-brick-emoji').innerText = currentFormEmoji;
+            document.getElementById('preview-brick-name').innerText = nameInput;
+        }
+
+        document.getElementById('input-nickname').oninput = updatePreview;
+        document.getElementById('select-texture').onchange = updatePreview;
+
+        // --- 7. MODALS LOGIC ---
+        function openDonateModal(slotIdx) {
+            selectedSlotIndex = slotIdx;
+            document.getElementById('donate-slot-coords').innerText = `Slot #${slotIdx + 1} (${activeFigure.name})`;
+            document.getElementById('modal-donate').classList.remove('hidden');
+            updatePreview();
+            playSound('click');
+        }
+
+        function openInspectModal(slotIdx, brickData) {
+            selectedInspectBrick = { slotIdx, ...brickData };
+            document.getElementById('inspect-brick-box').style.backgroundColor = brickData.color || '#3b82f6';
+            document.getElementById('inspect-brick-box').className = `w-24 h-24 rounded-3xl flex flex-col items-center justify-center text-white shadow-2xl relative brick-texture-${brickData.texture || 'classic'}`;
+            document.getElementById('inspect-brick-emoji').innerText = brickData.emoji || '🧱';
+            document.getElementById('inspect-brick-name').innerText = brickData.name;
+            document.getElementById('inspect-donor-name').innerText = brickData.name;
+            document.getElementById('inspect-brick-id').innerText = `Brick #${slotIdx + 1} • ${activeFigure.name}`;
+            document.getElementById('inspect-message').innerText = brickData.message || 'No dedication message.';
+            document.getElementById('inspect-like-count').innerText = brickData.likes || 0;
+
+            const socialContainer = document.getElementById('inspect-social-container');
+            if (brickData.social) {
+                socialContainer.classList.remove('hidden');
+                document.getElementById('inspect-social-link').href = brickData.social.startsWith('http') ? brickData.social : `https://${brickData.social}`;
+                document.getElementById('inspect-social-text').innerText = brickData.social;
+            } else {
+                socialContainer.classList.add('hidden');
+            }
+
+            document.getElementById('modal-inspect').classList.remove('hidden');
+            playSound('click');
+        }
+
+        // Close Modals
+        document.querySelectorAll('.btn-close-modal').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.fixed').forEach(m => m.classList.add('hidden'));
+                playSound('click');
+            };
+        });
+
+        // --- 8. SIMULATED PAYPAL CHECKOUT ---
+        document.getElementById('btn-pay-paypal').onclick = () => {
+            const nickname = document.getElementById('input-nickname').value.trim();
+            if (!nickname) {
+                alert('Please enter your nickname before placing a brick!');
+                return;
+            }
+
+            const btn = document.getElementById('btn-pay-paypal');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
+
+            setTimeout(() => {
+                // Payment success simulation
+                const newBrick = {
+                    name: nickname,
+                    message: document.getElementById('input-message').value.trim(),
+                    social: document.getElementById('input-social').value.trim(),
+                    color: currentFormColor,
+                    texture: document.getElementById('select-texture').value,
+                    emoji: currentFormEmoji,
+                    likes: 0,
+                    timestamp: new Date().toISOString()
+                };
+
+                placedBricks[selectedSlotIndex] = newBrick;
+                saveLocalData();
+                renderGrid();
+
+                // Reset button & hide modal
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-brands fa-paypal text-base"></i> Donate $1.00 & Place`;
+                document.getElementById('modal-donate').classList.add('hidden');
+
+                // Confetti & Audio FX
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                playSound('brick');
+
+            }, 1000);
+        };
+
+        // --- 9. ARTWORK COMPLETION & MUSEUM ROTATION ---
+        function triggerArtworkCompletion() {
+            playSound('fanfare');
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.4 } });
+
+            // Archive completed artwork
+            completedMuseum.push({
+                figureName: activeFigure.name,
+                bricks: { ...placedBricks },
+                date: new Date().toLocaleDateString()
+            });
+
+            // Reset current bricks for next figure
+            placedBricks = {};
+            activeFigureIndex++;
+            saveLocalData();
+
+            setTimeout(() => {
+                alert(`🎉 Congratulations! The artwork "${activeFigure.name}" is officially complete! It has been archived in the Museum.`);
+                initActiveFigure();
+            }, 600);
+        }
+
+        // --- 10. MUSEUM & LEADERBOARD MODALS ---
+        document.getElementById('btn-museum').onclick = () => {
+            const grid = document.getElementById('museum-gallery-grid');
+            grid.innerHTML = '';
+
+            if (completedMuseum.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500">No completed figures yet. Be the first to finish one!</div>`;
+            } else {
+                completedMuseum.forEach((item, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 flex flex-col items-center text-center';
+                    card.innerHTML = `
+                        <div class="text-4xl mb-2">🏆</div>
+                        <h4 class="font-bold text-amber-400 text-sm">${item.figureName}</h4>
+                        <span class="text-[10px] text-slate-400 mt-1">Completed: ${item.date}</span>
+                        <span class="mt-3 px-3 py-1 rounded-full bg-slate-700 text-[10px] text-slate-200 font-bold">50 Bricks Placed</span>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            document.getElementById('modal-museum').classList.remove('hidden');
+            playSound('click');
+        };
+
+        document.getElementById('btn-leaderboard').onclick = () => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+
+            // Calculate Top Donors across placed bricks
+            const donorCounts = {};
+            Object.values(placedBricks).forEach(b => {
+                donorCounts[b.name] = (donorCounts[b.name] || 0) + 1;
+            });
+
+            const sorted = Object.entries(donorCounts).sort((a,b) => b[1] - a[1]);
+
+            if (sorted.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No donors yet. Claim the first brick!</div>`;
+            } else {
+                sorted.forEach(([name, count], index) => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex justify-between items-center text-xs';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full ${index === 0 ? 'bg-amber-500 text-slate-900' : 'bg-slate-700 text-slate-300'} font-black flex items-center justify-center text-[10px]">
+                                #${index + 1}
+                            </span>
+                            <span class="font-bold text-slate-100">${name}</span>
+                        </div>
+                        <span class="font-black text-amber-400">${count} Brick${count > 1 ? 's' : ''}</span>
+                    `;
+                    list.appendChild(row);
+                });
+            }
+
+            document.getElementById('modal-leaderboard').classList.remove('hidden');
+            playSound('click');
+        };
+
+        // --- 11. CERTIFICATE GENERATOR (CANVAS) ---
+        document.getElementById('btn-download-cert').onclick = () => {
+            if (!selectedInspectBrick) return;
+            const canvas = document.getElementById('cert-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Draw Background
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 800, 500);
+
+            // Border
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, 760, 460);
+
+            // Header Title
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 28px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('OFFICIAL CERTIFICATE OF OWNERSHIP', 400, 90);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('1 DOLLAR BRICK COMMUNITY PIXEL ART', 400, 120);
+
+            // Main Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '20px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('This certifies that', 400, 190);
+
+            ctx.fillStyle = '#ec4899';
+            ctx.font = 'extrabold 36px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(selectedInspectBrick.name, 400, 240);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '18px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(`is the official owner of Brick #${selectedInspectBrick.slotIdx + 1} in "${activeFigure.name}"`, 400, 290);
+
+            // Stamp / Badge
+            ctx.fillStyle = selectedInspectBrick.color || '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(400, 370, 45, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '32px sans-serif';
+            ctx.fillText(selectedInspectBrick.emoji || '🧱', 400, 382);
+
+            // Download Trigger
+            const link = document.createElement('a');
+            link.download = `Certificate_Brick_${selectedInspectBrick.slotIdx + 1}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            playSound('click');
+        };
+
+        // Like Button
+        document.getElementById('btn-like-brick').onclick = () => {
+            if (!selectedInspectBrick) return;
+            selectedInspectBrick.likes = (selectedInspectBrick.likes || 0) + 1;
+            placedBricks[selectedInspectBrick.slotIdx].likes = selectedInspectBrick.likes;
+            document.getElementById('inspect-like-count').innerText = selectedInspectBrick.likes;
+            saveLocalData();
+            playSound('click');
+        };
+
+        // Sound Toggle Button
+        document.getElementById('sound-toggle').onclick = () => {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-toggle');
+            btn.innerHTML = soundEnabled ? `<i class="fa-solid fa-volume-high text-sm"></i>` : `<i class="fa-solid fa-volume-xmark text-sm text-slate-500"></i>`;
+        };
+    </script>
+</body>
+</html>
