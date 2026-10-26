@@ -12,6 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Official PayPal JS SDK (Sandbox / Standard Client Integration) -->
+    <!-- Sostituisci client-id=sb con il tuo Client ID PayPal Sandbox o Live se desideri -->
+    <script src="https://www.paypal.com/sdk/js?client-id=ATQTN8-fCMMaRdF3z_CVcSQrwkGs7v5C7YSVmkHpftZ2wIzR6AHWCvnvUd9SNH_UiGTpW2VW7TJFdaWY&currency=EUR"></script>
     
     <script>
         tailwind.config = {
@@ -299,18 +302,15 @@
 
             </div>
 
-            <!-- Modal Footer / Checkout -->
-            <div class="px-6 py-4 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between">
+            <!-- Modal Footer / Real PayPal Checkout Integration -->
+            <div class="px-6 py-4 bg-slate-900/80 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                     <div class="text-xs text-slate-400">Total Amount</div>
                     <div class="text-xl font-black text-amber-400">1.00 € / $1.00</div>
                 </div>
 
-                <!-- Real PayPal Checkout Button Linked to metallox@gmail.com -->
-                <button id="btn-pay-paypal" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-extrabold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition flex items-center gap-2">
-                    <i class="fa-brands fa-paypal text-base"></i>
-                    <span>Pay 1,00 € with PayPal</span>
-                </button>
+                <!-- Smart PayPal SDK Button Container -->
+                <div id="paypal-button-container" class="w-full sm:w-64 min-h-[45px]"></div>
             </div>
         </div>
     </div>
@@ -419,9 +419,6 @@
 
     <!-- MAIN JAVASCRIPT APP LOGIC -->
     <script>
-        // --- PAYPAL ACCOUNT INTEGRATION ---
-        const PAYPAL_RECEIVER_EMAIL = "metallox@gmail.com";
-
         // --- 1. GAME STATE & DATA STRUCTURES ---
         const PALETTES = [
             '#ef4444', '#f97316', '#f59e0b', '#10b981', 
@@ -510,7 +507,6 @@
         ];
 
         // FAKE SEED DATA (To reach ~$1,300 total raised)
-        // 25 completed figures ($1250) + 38 active bricks ($38) = $1288
         const SEED_ACTIVE_BRICKS = {
             0: { name: "Elena_M", message: "Viva la Pixel Art! 🚀", social: "@elena_m", color: "#ec4899", texture: "neon", emoji: "🚀", likes: 14, timestamp: "2026-10-20" },
             1: { name: "MarcoDev", message: "Supporting from Rome 🇮🇹", social: "github.com/marcodev", color: "#3b82f6", texture: "classic", emoji: "💻", likes: 8, timestamp: "2026-10-21" },
@@ -653,8 +649,8 @@
         });
 
         function loadLocalData() {
-            const versionKey = '1dollarbrick_v5_placed';
-            const museumKey = '1dollarbrick_v5_museum';
+            const versionKey = '1dollarbrick_v6_placed';
+            const museumKey = '1dollarbrick_v6_museum';
 
             try {
                 const savedBricks = localStorage.getItem(versionKey);
@@ -683,8 +679,8 @@
 
         function saveLocalData() {
             try {
-                localStorage.setItem('1dollarbrick_v5_placed', JSON.stringify(placedBricks));
-                localStorage.setItem('1dollarbrick_v5_museum', JSON.stringify(completedMuseum));
+                localStorage.setItem('1dollarbrick_v6_placed', JSON.stringify(placedBricks));
+                localStorage.setItem('1dollarbrick_v6_museum', JSON.stringify(completedMuseum));
             } catch (e) {}
         }
 
@@ -864,13 +860,84 @@
         document.getElementById('input-nickname').oninput = updatePreview;
         document.getElementById('select-texture').onchange = updatePreview;
 
-        // --- 7. MODALS LOGIC ---
+        // --- 7. MODALS & REAL PAYPAL SDK INTEGRATION ---
         function openDonateModal(slotIdx) {
             selectedSlotIndex = slotIdx;
             document.getElementById('donate-slot-coords').innerText = `Slot #${slotIdx + 1} (${activeFigure.name})`;
             document.getElementById('modal-donate').classList.remove('hidden');
             updatePreview();
+            renderPayPalButton();
             playSound('click');
+        }
+
+        function renderPayPalButton() {
+            const container = document.getElementById('paypal-button-container');
+            container.innerHTML = ''; // Clear existing button
+
+            if (typeof paypal === 'undefined') {
+                container.innerHTML = `<div class="text-xs text-rose-400 font-bold">PayPal SDK loading error. Please refresh.</div>`;
+                return;
+            }
+
+            paypal.Buttons({
+                style: {
+                    layout: 'horizontal',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'pay',
+                    height: 40
+                },
+                createOrder: function(data, actions) {
+                    const nickname = document.getElementById('input-nickname').value.trim();
+                    if (!nickname) {
+                        alert('Inserisci un Nickname prima di procedere al pagamento!');
+                        throw new Error('Nickname is required');
+                    }
+
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '1.00',
+                                currency_code: 'EUR'
+                            },
+                            description: `1 Dollar Brick - Slot #${selectedSlotIndex + 1} (${nickname})`
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    // IL PAGAMENTO È STATO COMPLETATO ED AUTORIZZATO DA PAYPAL!
+                    return actions.order.capture().then(function(details) {
+                        const nickname = document.getElementById('input-nickname').value.trim() || 'Anonymous';
+                        
+                        // POSIZIONAMENTO DEL MATTONCINO (AVVIENE SOLO ORA A PAGAMENTO AVVENUTO)
+                        const newBrick = {
+                            name: nickname,
+                            message: document.getElementById('input-message').value.trim(),
+                            social: document.getElementById('input-social').value.trim(),
+                            color: currentFormColor,
+                            texture: document.getElementById('select-texture').value,
+                            emoji: currentFormEmoji,
+                            likes: 0,
+                            timestamp: new Date().toISOString(),
+                            paypalTxId: details.id
+                        };
+
+                        placedBricks[selectedSlotIndex] = newBrick;
+                        saveLocalData();
+                        renderGrid();
+
+                        document.getElementById('modal-donate').classList.add('hidden');
+                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                        playSound('brick');
+
+                        alert(`🎉 Pagamento di 1,00 € confermato da PayPal! Il tuo mattoncino #${selectedSlotIndex + 1} è stato ufficialmente piazzato!`);
+                    });
+                },
+                onError: function(err) {
+                    console.error('PayPal Order Error:', err);
+                    alert('Impossibile completare la transazione PayPal o operazione annullata.');
+                }
+            }).render('#paypal-button-container');
         }
 
         function openInspectModal(slotIdx, brickData) {
@@ -904,42 +971,7 @@
             };
         });
 
-        // --- 8. REAL PAYPAL CHECKOUT (DIRECT PAY TO METALLOX@GMAIL.COM VIA _xclick) ---
-        document.getElementById('btn-pay-paypal').onclick = () => {
-            const nickname = document.getElementById('input-nickname').value.trim();
-            if (!nickname) {
-                alert('Please enter your nickname before placing a brick!');
-                return;
-            }
-
-            // Save brick locally
-            const newBrick = {
-                name: nickname,
-                message: document.getElementById('input-message').value.trim(),
-                social: document.getElementById('input-social').value.trim(),
-                color: currentFormColor,
-                texture: document.getElementById('select-texture').value,
-                emoji: currentFormEmoji,
-                likes: 0,
-                timestamp: new Date().toISOString()
-            };
-
-            placedBricks[selectedSlotIndex] = newBrick;
-            saveLocalData();
-            renderGrid();
-
-            document.getElementById('modal-donate').classList.add('hidden');
-            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-            playSound('brick');
-
-            // Using cmd=_xclick (standard payment) instead of cmd=_donations so personal accounts accept payments without non-profit restrictions
-            const itemTitle = `1 Dollar Brick - Slot #${selectedSlotIndex + 1} (${nickname})`;
-            const paypalCheckoutUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_RECEIVER_EMAIL)}&lc=US&item_name=${encodeURIComponent(itemTitle)}&amount=1.00&currency_code=EUR`;
-            
-            window.open(paypalCheckoutUrl, '_blank');
-        };
-
-        // --- 9. ARTWORK COMPLETION & MUSEUM ROTATION ---
+        // --- 8. ARTWORK COMPLETION & MUSEUM ROTATION ---
         function triggerArtworkCompletion() {
             playSound('fanfare');
             confetti({ particleCount: 200, spread: 100, origin: { y: 0.4 } });
@@ -960,7 +992,7 @@
             }, 600);
         }
 
-        // --- 10. MUSEUM & LEADERBOARD MODALS ---
+        // --- 9. MUSEUM & LEADERBOARD MODALS ---
         document.getElementById('btn-museum').onclick = () => {
             const grid = document.getElementById('museum-gallery-grid');
             grid.innerHTML = '';
@@ -1019,7 +1051,7 @@
             playSound('click');
         };
 
-        // --- 11. CERTIFICATE GENERATOR (CANVAS) ---
+        // --- 10. CERTIFICATE GENERATOR (CANVAS) ---
         document.getElementById('btn-download-cert').onclick = () => {
             if (!selectedInspectBrick) return;
             const canvas = document.getElementById('cert-canvas');
@@ -1092,6 +1124,6 @@
 """
 
 with open("index.html", "w", encoding="utf-8") as f:
-    f.write(fixed_html_code)
+    f.write(updated_html)
 
-print("Updated index.html with cmd=_xclick successfully!")
+print("PayPal SDK integration updated in index.html! Brick is placed strictly ON APPROVE/CAPTURE.")
