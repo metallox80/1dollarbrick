@@ -1,4 +1,4 @@
-fixed_html_code = """<!DOCTYPE html>
+html_code = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -509,44 +509,44 @@ fixed_html_code = """<!DOCTYPE html>
         // FAKE SEED DATA (To reach ~$1,300 total raised)
         // 25 completed figures ($1250) + 38 active bricks ($38) = $1288
         const SEED_ACTIVE_BRICKS = {
-            0: { name: 'Elena_M', message: 'Viva la Pixel Art! 🚀', social: '@elena_m', color: '#ec4899', texture: 'neon', emoji: '🚀', likes: 14, timestamp: '2026-10-20' },
-            1: { name: 'MarcoDev', message: 'Supporting from Rome 🇮🇹', social: 'github.com/marcodev', color: '#3b82f6', texture: 'classic', emoji: '💻', likes: 8, timestamp: '2026-10-21' },
-            6: { name: 'CryptoKing', message: 'HODL! 💎', social: '@cryptoking', color: '#f59e0b', texture: 'gold', emoji: '👑', likes: 29, timestamp: '2026-10-21' },
-            7: { name: 'Alex_99', message: 'First brick placed!', color: '#10b981', texture: 'classic', emoji: '🧱', likes: 4, timestamp: '2026-10-22' },
-            8: { name: 'Sarah_K', message: 'Greetings from Berlin 🎨', social: '@sarah_art', color: '#8b5cf6', texture: 'diamond', emoji: '🌟', likes: 12, timestamp: '2026-10-22' },
-            11: { name: 'TechGeek', message: 'Great project concept!', color: '#06b6d4', texture: 'neon', emoji: '⚡', likes: 7, timestamp: '2026-10-22' },
-            12: { name: 'PixelArtist', message: 'Let us complete this cat!', social: '@pixel_pro', color: '#f97316', texture: 'gold', emoji: '🐱', likes: 34, timestamp: '2026-10-22' },
-            13: { name: 'GamerGirl', message: 'Level up! 🎮', social: 'twitch.tv/gamergirl', color: '#ec4899', texture: 'neon', emoji: '🎮', likes: 19, timestamp: '2026-10-23' },
-            14: { name: 'Satoshi_N', message: 'For the open web.', color: '#f59e0b', texture: 'gold', emoji: '👑', likes: 52, timestamp: '2026-10-23' },
-            15: { name: 'Luca_B', message: 'Un saluto dall\'Italia!', color: '#10b981', texture: 'classic', emoji: '❤️', likes: 11, timestamp: '2026-10-23' },
-            16: { name: 'Web3Founder', message: 'Building together 🚀', social: '@web3founder', color: '#38bdf8', texture: 'diamond', emoji: '💎', likes: 21, timestamp: '2026-10-23' },
-            17: { name: 'Anna_P', message: 'Love this design!', color: '#ef4444', texture: 'classic', emoji: '🔥', likes: 6, timestamp: '2026-10-23' },
-            18: { name: 'JohnDoe', message: 'Just 1 dollar for fun', color: '#3b82f6', texture: 'classic', emoji: '🧱', likes: 3, timestamp: '2026-10-24' },
-            19: { name: 'CryptoWhale', message: 'Adding another one 🐋', color: '#06b6d4', texture: 'diamond', emoji: '💎', likes: 18, timestamp: '2026-10-24' },
-            20: { name: 'Giulia_V', message: 'Bravissimi!', color: '#ec4899', texture: 'neon', emoji: '❤️', likes: 9, timestamp: '2026-10-24' },
-            21: { name: 'Matteo_R', message: '1 Dollar Brick rocks!', color: '#f59e0b', texture: 'gold', emoji: '⚡', likes: 15, timestamp: '2026-10-24' },
-            22: { name: 'Sophie_L', message: 'Hello from Paris ✨', color: '#8b5cf6', texture: 'diamond', emoji: '🌟', likes: 10, timestamp: '2026-10-24' },
-            23: { name: 'Dave_Dev', message: 'Clean HTML & CSS!', color: '#10b981', texture: 'classic', emoji: '💻', likes: 5, timestamp: '2026-10-25' },
-            24: { name: 'IndieMaker', message: 'Check my product at indiemaker.io', social: 'https://indiemaker.io', color: '#f97316', texture: 'gold', emoji: '🚀', likes: 27, timestamp: '2026-10-25' },
-            25: { name: 'Chiara_95', message: 'Un piccolo mattone per una grande opera!', color: '#ef4444', texture: 'classic', emoji: '❤️', likes: 8, timestamp: '2026-10-25' },
-            26: { name: 'PixelFan', message: 'Keep building!', color: '#3b82f6', texture: 'classic', emoji: '🎮', likes: 4, timestamp: '2026-10-25' },
-            27: { name: 'Tom_H', message: 'Cool idea, guys.', color: '#06b6d4', texture: 'classic', emoji: '🧱', likes: 2, timestamp: '2026-10-25' },
-            28: { name: 'Laura_M', message: 'Super carino il gatto!', color: '#ec4899', texture: 'neon', emoji: '🐱', likes: 16, timestamp: '2026-10-25' },
-            29: { name: 'BitMaster', message: 'Block #29 verified.', color: '#f59e0b', texture: 'gold', emoji: '⚡', likes: 12, timestamp: '2026-10-26' },
-            30: { name: 'Federico', message: 'Forza Italia!', color: '#10b981', texture: 'classic', emoji: '👑', likes: 7, timestamp: '2026-10-26' },
-            31: { name: 'DesignPro', message: 'Love the color palette', social: '@designpro', color: '#8b5cf6', texture: 'diamond', emoji: '🌟', likes: 13, timestamp: '2026-10-26' },
-            32: { name: 'Max_Speed', message: 'Full throttle!', color: '#f97316', texture: 'gold', emoji: '🚀', likes: 9, timestamp: '2026-10-26' },
-            33: { name: 'Sara_T', message: 'Almost completed!', color: '#ef4444', texture: 'classic', emoji: '🔥', likes: 11, timestamp: '2026-10-26' },
-            34: { name: 'NodeNinja', message: 'console.log("Brick added!");', color: '#3b82f6', texture: 'classic', emoji: '💻', likes: 6, timestamp: '2026-10-26' },
-            35: { name: 'Vito_C', message: 'Un salutone a tutti', color: '#06b6d4', texture: 'classic', emoji: '🧱', likes: 3, timestamp: '2026-10-26' },
-            36: { name: 'SuperFan', message: 'I bought 5 bricks already!', color: '#f59e0b', texture: 'gold', emoji: '👑', likes: 31, timestamp: '2026-10-26' },
-            37: { name: 'Elena_V', message: 'Bellissima iniziativa ✨', color: '#ec4899', texture: 'neon', emoji: '❤️', likes: 14, timestamp: '2026-10-26' },
-            38: { name: 'Chris_P', message: 'Greetings from London!', color: '#8b5cf6', texture: 'diamond', emoji: '💎', likes: 10, timestamp: '2026-10-26' },
-            39: { name: 'Marta_S', message: 'Ancora pochi mattoni!', color: '#10b981', texture: 'classic', emoji: '🚀', likes: 5, timestamp: '2026-10-26' },
-            40: { name: 'ApexPredator', message: 'GG EZ!', color: '#f97316', texture: 'neon', emoji: '🎮', likes: 8, timestamp: '2026-10-26' },
-            41: { name: 'ZeroCool', message: 'Hack the planet 🕶️', color: '#06b6d4', texture: 'diamond', emoji: '⚡', likes: 22, timestamp: '2026-10-26' },
-            42: { name: 'Nico_Web', message: 'Super cool project!', color: '#3b82f6', texture: 'classic', emoji: '🧱', likes: 4, timestamp: '2026-10-26' },
-            43: { name: 'Kati_A', message: 'Love from Helsinki 🇫🇮', color: '#ec4899', texture: 'classic', emoji: '🌟', likes: 7, timestamp: '2026-10-26' }
+            0: { name: "Elena_M", message: "Viva la Pixel Art! 🚀", social: "@elena_m", color: "#ec4899", texture: "neon", emoji: "🚀", likes: 14, timestamp: "2026-10-20" },
+            1: { name: "MarcoDev", message: "Supporting from Rome 🇮🇹", social: "github.com/marcodev", color: "#3b82f6", texture: "classic", emoji: "💻", likes: 8, timestamp: "2026-10-21" },
+            6: { name: "CryptoKing", message: "HODL! 💎", social: "@cryptoking", color: "#f59e0b", texture: "gold", emoji: "👑", likes: 29, timestamp: "2026-10-21" },
+            7: { name: "Alex_99", message: "First brick placed!", color: "#10b981", texture: "classic", emoji: "🧱", likes: 4, timestamp: "2026-10-22" },
+            8: { name: "Sarah_K", message: "Greetings from Berlin 🎨", social: "@sarah_art", color: "#8b5cf6", texture: "diamond", emoji: "🌟", likes: 12, timestamp: "2026-10-22" },
+            11: { name: "TechGeek", message: "Great project concept!", color: "#06b6d4", texture: "neon", emoji: "⚡", likes: 7, timestamp: "2026-10-22" },
+            12: { name: "PixelArtist", message: "Let us complete this cat!", social: "@pixel_pro", color: "#f97316", texture: "gold", emoji: "🐱", likes: 34, timestamp: "2026-10-22" },
+            13: { name: "GamerGirl", message: "Level up! 🎮", social: "twitch.tv/gamergirl", color: "#ec4899", texture: "neon", emoji: "🎮", likes: 19, timestamp: "2026-10-23" },
+            14: { name: "Satoshi_N", message: "For the open web.", color: "#f59e0b", texture: "gold", emoji: "👑", likes: 52, timestamp: "2026-10-23" },
+            15: { name: "Luca_B", message: "Un saluto dall'Italia!", color: "#10b981", texture: "classic", emoji: "❤️", likes: 11, timestamp: "2026-10-23" },
+            16: { name: "Web3Founder", message: "Building together 🚀", social: "@web3founder", color: "#38bdf8", texture: "diamond", emoji: "💎", likes: 21, timestamp: "2026-10-23" },
+            17: { name: "Anna_P", message: "Love this design!", color: "#ef4444", texture: "classic", emoji: "🔥", likes: 6, timestamp: "2026-10-23" },
+            18: { name: "JohnDoe", message: "Just 1 dollar for fun", color: "#3b82f6", texture: "classic", emoji: "🧱", likes: 3, timestamp: "2026-10-24" },
+            19: { name: "CryptoWhale", message: "Adding another one 🐋", color: "#06b6d4", texture: "diamond", emoji: "💎", likes: 18, timestamp: "2026-10-24" },
+            20: { name: "Giulia_V", message: "Bravissimi!", color: "#ec4899", texture: "neon", emoji: "❤️", likes: 9, timestamp: "2026-10-24" },
+            21: { name: "Matteo_R", message: "1 Dollar Brick rocks!", color: "#f59e0b", texture: "gold", emoji: "⚡", likes: 15, timestamp: "2026-10-24" },
+            22: { name: "Sophie_L", message: "Hello from Paris ✨", color: "#8b5cf6", texture: "diamond", emoji: "🌟", likes: 10, timestamp: "2026-10-24" },
+            23: { name: "Dave_Dev", message: "Clean HTML & CSS!", color: "#10b981", texture: "classic", emoji: "💻", likes: 5, timestamp: "2026-10-25" },
+            24: { name: "IndieMaker", message: "Check my product at indiemaker.io", social: "https://indiemaker.io", color: "#f97316", texture: "gold", emoji: "🚀", likes: 27, timestamp: "2026-10-25" },
+            25: { name: "Chiara_95", message: "Un piccolo mattone per una grande opera!", color: "#ef4444", texture: "classic", emoji: "❤️", likes: 8, timestamp: "2026-10-25" },
+            26: { name: "PixelFan", message: "Keep building!", color: "#3b82f6", texture: "classic", emoji: "🎮", likes: 4, timestamp: "2026-10-25" },
+            27: { name: "Tom_H", message: "Cool idea, guys.", color: "#06b6d4", texture: "classic", emoji: "🧱", likes: 2, timestamp: "2026-10-25" },
+            28: { name: "Laura_M", message: "Super carino il gatto!", color: "#ec4899", texture: "neon", emoji: "🐱", likes: 16, timestamp: "2026-10-25" },
+            29: { name: "BitMaster", message: "Block #29 verified.", color: "#f59e0b", texture: "gold", emoji: "⚡", likes: 12, timestamp: "2026-10-26" },
+            30: { name: "Federico", message: "Forza Italia!", color: "#10b981", texture: "classic", emoji: "👑", likes: 7, timestamp: "2026-10-26" },
+            31: { name: "DesignPro", message: "Love the color palette", social: "@designpro", color: "#8b5cf6", texture: "diamond", emoji: "🌟", likes: 13, timestamp: "2026-10-26" },
+            32: { name: "Max_Speed", message: "Full throttle!", color: "#f97316", texture: "gold", emoji: "🚀", likes: 9, timestamp: "2026-10-26" },
+            33: { name: "Sara_T", message: "Almost completed!", color: "#ef4444", texture: "classic", emoji: "🔥", likes: 11, timestamp: "2026-10-26" },
+            34: { name: "NodeNinja", message: 'console.log("Brick added!");', color: "#3b82f6", texture: "classic", emoji: "💻", likes: 6, timestamp: "2026-10-26" },
+            35: { name: "Vito_C", message: "Un salutone a tutti", color: "#06b6d4", texture: "classic", emoji: "🧱", likes: 3, timestamp: "2026-10-26" },
+            36: { name: "SuperFan", message: "I bought 5 bricks already!", color: "#f59e0b", texture: "gold", emoji: "👑", likes: 31, timestamp: "2026-10-26" },
+            37: { name: "Elena_V", message: "Bellissima iniziativa ✨", color: "#ec4899", texture: "neon", emoji: "❤️", likes: 14, timestamp: "2026-10-26" },
+            38: { name: "Chris_P", message: "Greetings from London!", color: "#8b5cf6", texture: "diamond", emoji: "💎", likes: 10, timestamp: "2026-10-26" },
+            39: { name: "Marta_S", message: "Ancora pochi mattoni!", color: "#10b981", texture: "classic", emoji: "🚀", likes: 5, timestamp: "2026-10-26" },
+            40: { name: "ApexPredator", message: "GG EZ!", color: "#f97316", texture: "neon", emoji: "🎮", likes: 8, timestamp: "2026-10-26" },
+            41: { name: "ZeroCool", message: "Hack the planet 🕶️", color: "#06b6d4", texture: "diamond", emoji: "⚡", likes: 22, timestamp: "2026-10-26" },
+            42: { name: "Nico_Web", message: "Super cool project!", color: "#3b82f6", texture: "classic", emoji: "🧱", likes: 4, timestamp: "2026-10-26" },
+            43: { name: "Kati_A", message: "Love from Helsinki 🇫🇮", color: "#ec4899", texture: "classic", emoji: "🌟", likes: 7, timestamp: "2026-10-26" }
         };
 
         const SEED_MUSEUM = [
@@ -581,16 +581,14 @@ fixed_html_code = """<!DOCTYPE html>
         let soundEnabled = true;
         let activeFigureIndex = 0;
         let activeFigure = null;
-        let placedBricks = {}; // key: slotIndex, val: brickObj
-        let completedMuseum = []; // Array of completed figure objects
+        let placedBricks = {}; 
+        let completedMuseum = []; 
         let selectedSlotIndex = null;
         let selectedInspectBrick = null;
 
-        // Form Customization State
         let currentFormColor = PALETTES[0];
         let currentFormEmoji = EMOJIS[0];
 
-        // Pan & Zoom Camera State
         let scale = 1;
         let panX = 0;
         let panY = 0;
@@ -652,8 +650,12 @@ fixed_html_code = """<!DOCTYPE html>
         });
 
         function loadLocalData() {
+            // Versioned LocalStorage Key to clear old broken data from user browser
+            const versionKey = '1dollarbrick_v3_placed';
+            const museumKey = '1dollarbrick_v3_museum';
+
             try {
-                const savedBricks = localStorage.getItem('1dollarbrick_placed');
+                const savedBricks = localStorage.getItem(versionKey);
                 if (savedBricks && Object.keys(JSON.parse(savedBricks)).length > 0) {
                     placedBricks = JSON.parse(savedBricks);
                 } else {
@@ -664,7 +666,7 @@ fixed_html_code = """<!DOCTYPE html>
             }
 
             try {
-                const savedMuseum = localStorage.getItem('1dollarbrick_museum');
+                const savedMuseum = localStorage.getItem(museumKey);
                 if (savedMuseum && JSON.parse(savedMuseum).length > 0) {
                     completedMuseum = JSON.parse(savedMuseum);
                 } else {
@@ -679,8 +681,8 @@ fixed_html_code = """<!DOCTYPE html>
 
         function saveLocalData() {
             try {
-                localStorage.setItem('1dollarbrick_placed', JSON.stringify(placedBricks));
-                localStorage.setItem('1dollarbrick_museum', JSON.stringify(completedMuseum));
+                localStorage.setItem('1dollarbrick_v3_placed', JSON.stringify(placedBricks));
+                localStorage.setItem('1dollarbrick_v3_museum', JSON.stringify(completedMuseum));
             } catch (e) {}
         }
 
@@ -692,6 +694,8 @@ fixed_html_code = """<!DOCTYPE html>
         // --- 4. GRID RENDER ENGINE ---
         function renderGrid() {
             const gridEl = document.getElementById('pixel-grid');
+            if (!gridEl) return;
+            
             gridEl.innerHTML = '';
             gridEl.style.gridTemplateColumns = `repeat(${activeFigure.gridCols}, minmax(0, 1fr))`;
 
@@ -1088,7 +1092,12 @@ fixed_html_code = """<!DOCTYPE html>
 </html>
 """
 
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(fixed_html_code)
+# Let's test Javascript syntax with node or python!
+import re
 
-print("Fixed index.html generated successfully!")
+# Check for single quotes unescaped inside single quotes in JS:
+lines = html_code.split('\n')
+for i, l in enumerate(lines, 1):
+    # simple check if line has invalid syntax like name: 'Luca_B', message: 'Un saluto dall'Italia!'
+    if "dall'Italia" in l:
+        print(f"Line {i}: {l}")
