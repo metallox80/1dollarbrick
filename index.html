@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+fixed_html_code = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -518,7 +518,7 @@
             12: { name: 'PixelArtist', message: 'Let us complete this cat!', social: '@pixel_pro', color: '#f97316', texture: 'gold', emoji: '🐱', likes: 34, timestamp: '2026-10-22' },
             13: { name: 'GamerGirl', message: 'Level up! 🎮', social: 'twitch.tv/gamergirl', color: '#ec4899', texture: 'neon', emoji: '🎮', likes: 19, timestamp: '2026-10-23' },
             14: { name: 'Satoshi_N', message: 'For the open web.', color: '#f59e0b', texture: 'gold', emoji: '👑', likes: 52, timestamp: '2026-10-23' },
-            15: { name: 'Luca_B', message: 'Un saluto dall'Italia!', color: '#10b981', texture: 'classic', emoji: '❤️', likes: 11, timestamp: '2026-10-23' },
+            15: { name: 'Luca_B', message: 'Un saluto dall\'Italia!', color: '#10b981', texture: 'classic', emoji: '❤️', likes: 11, timestamp: '2026-10-23' },
             16: { name: 'Web3Founder', message: 'Building together 🚀', social: '@web3founder', color: '#38bdf8', texture: 'diamond', emoji: '💎', likes: 21, timestamp: '2026-10-23' },
             17: { name: 'Anna_P', message: 'Love this design!', color: '#ef4444', texture: 'classic', emoji: '🔥', likes: 6, timestamp: '2026-10-23' },
             18: { name: 'JohnDoe', message: 'Just 1 dollar for fun', color: '#3b82f6', texture: 'classic', emoji: '🧱', likes: 3, timestamp: '2026-10-24' },
@@ -649,23 +649,28 @@
             renderPaletteOptions();
             renderEmojiOptions();
             setupCameraControls();
-            updateUI();
         });
 
         function loadLocalData() {
-            const savedBricks = localStorage.getItem('1dollarbrick_placed');
-            if (savedBricks && Object.keys(JSON.parse(savedBricks)).length > 0) {
-                placedBricks = JSON.parse(savedBricks);
-            } else {
-                // Populate fake seed donors
+            try {
+                const savedBricks = localStorage.getItem('1dollarbrick_placed');
+                if (savedBricks && Object.keys(JSON.parse(savedBricks)).length > 0) {
+                    placedBricks = JSON.parse(savedBricks);
+                } else {
+                    placedBricks = { ...SEED_ACTIVE_BRICKS };
+                }
+            } catch (e) {
                 placedBricks = { ...SEED_ACTIVE_BRICKS };
             }
 
-            const savedMuseum = localStorage.getItem('1dollarbrick_museum');
-            if (savedMuseum && JSON.parse(savedMuseum).length > 0) {
-                completedMuseum = JSON.parse(savedMuseum);
-            } else {
-                // Populate 25 completed museum figures ($1,250)
+            try {
+                const savedMuseum = localStorage.getItem('1dollarbrick_museum');
+                if (savedMuseum && JSON.parse(savedMuseum).length > 0) {
+                    completedMuseum = JSON.parse(savedMuseum);
+                } else {
+                    completedMuseum = [ ...SEED_MUSEUM ];
+                }
+            } catch (e) {
                 completedMuseum = [ ...SEED_MUSEUM ];
             }
 
@@ -673,8 +678,10 @@
         }
 
         function saveLocalData() {
-            localStorage.setItem('1dollarbrick_placed', JSON.stringify(placedBricks));
-            localStorage.setItem('1dollarbrick_museum', JSON.stringify(completedMuseum));
+            try {
+                localStorage.setItem('1dollarbrick_placed', JSON.stringify(placedBricks));
+                localStorage.setItem('1dollarbrick_museum', JSON.stringify(completedMuseum));
+            } catch (e) {}
         }
 
         function initActiveFigure() {
@@ -696,7 +703,6 @@
 
             activeFigure.layout.forEach((isSlot, idx) => {
                 if (isSlot === 0) {
-                    // Empty non-buildable space
                     const emptyDiv = document.createElement('div');
                     emptyDiv.className = 'w-14 h-14 opacity-0 pointer-events-none';
                     gridEl.appendChild(emptyDiv);
@@ -708,7 +714,6 @@
 
                 if (brickData) {
                     filledSlots++;
-                    // Render Placed Brick
                     const brickBtn = document.createElement('button');
                     brickBtn.className = `w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-white relative transition-transform hover:scale-110 shadow-lg brick-texture-${brickData.texture || 'classic'}`;
                     brickBtn.style.backgroundColor = brickData.color || '#3b82f6';
@@ -719,7 +724,6 @@
                     brickBtn.onclick = () => openInspectModal(idx, brickData);
                     gridEl.appendChild(brickBtn);
                 } else {
-                    // Render Printable Empty Slot (+)
                     const slotBtn = document.createElement('button');
                     slotBtn.className = 'w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400/50 bg-amber-500/10 hover:bg-amber-500/30 hover:border-amber-400 flex flex-col items-center justify-center text-amber-300 transition-all duration-300 animate-pulse-glow hover:scale-105';
                     slotBtn.innerHTML = `
@@ -741,7 +745,6 @@
             document.getElementById('stat-total-raised').innerText = `$${totalRaised} USD`;
             document.getElementById('museum-count').innerText = completedMuseum.length;
 
-            // Check if Artwork Completed
             if (filledSlots === totalValidSlots && totalValidSlots > 0) {
                 triggerArtworkCompletion();
             }
@@ -772,7 +775,6 @@
 
             window.addEventListener('mouseup', () => { isDragging = false; });
 
-            // Mouse Wheel Zoom
             viewport.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
@@ -780,7 +782,6 @@
                 applyTransform();
             });
 
-            // Zoom Buttons
             document.getElementById('btn-zoom-in').onclick = () => {
                 scale = Math.min(2.5, scale * 1.25);
                 applyTransform();
@@ -890,7 +891,6 @@
             playSound('click');
         }
 
-        // Close Modals
         document.querySelectorAll('.btn-close-modal').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.fixed').forEach(m => m.classList.add('hidden'));
@@ -911,7 +911,6 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
 
             setTimeout(() => {
-                // Payment success simulation
                 const newBrick = {
                     name: nickname,
                     message: document.getElementById('input-message').value.trim(),
@@ -927,12 +926,10 @@
                 saveLocalData();
                 renderGrid();
 
-                // Reset button & hide modal
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-brands fa-paypal text-base"></i> Donate $1.00 & Place`;
                 document.getElementById('modal-donate').classList.add('hidden');
 
-                // Confetti & Audio FX
                 confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
                 playSound('brick');
 
@@ -944,14 +941,12 @@
             playSound('fanfare');
             confetti({ particleCount: 200, spread: 100, origin: { y: 0.4 } });
 
-            // Archive completed artwork
             completedMuseum.push({
                 figureName: activeFigure.name,
                 bricks: { ...placedBricks },
                 date: new Date().toLocaleDateString()
             });
 
-            // Reset current bricks for next figure
             placedBricks = {};
             activeFigureIndex++;
             saveLocalData();
@@ -991,7 +986,6 @@
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = '';
 
-            // Calculate Top Donors across placed bricks
             const donorCounts = {};
             Object.values(placedBricks).forEach(b => {
                 donorCounts[b.name] = (donorCounts[b.name] || 0) + 1;
@@ -1028,16 +1022,13 @@
             const canvas = document.getElementById('cert-canvas');
             const ctx = canvas.getContext('2d');
 
-            // Draw Background
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, 800, 500);
 
-            // Border
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 10;
             ctx.strokeRect(20, 20, 760, 460);
 
-            // Header Title
             ctx.fillStyle = '#f59e0b';
             ctx.font = 'bold 28px "Plus Jakarta Sans", sans-serif';
             ctx.textAlign = 'center';
@@ -1047,7 +1038,6 @@
             ctx.font = '16px "Plus Jakarta Sans", sans-serif';
             ctx.fillText('1 DOLLAR BRICK COMMUNITY PIXEL ART', 400, 120);
 
-            // Main Text
             ctx.fillStyle = '#ffffff';
             ctx.font = '20px "Plus Jakarta Sans", sans-serif';
             ctx.fillText('This certifies that', 400, 190);
@@ -1060,7 +1050,6 @@
             ctx.font = '18px "Plus Jakarta Sans", sans-serif';
             ctx.fillText(`is the official owner of Brick #${selectedInspectBrick.slotIdx + 1} in "${activeFigure.name}"`, 400, 290);
 
-            // Stamp / Badge
             ctx.fillStyle = selectedInspectBrick.color || '#f59e0b';
             ctx.beginPath();
             ctx.arc(400, 370, 45, 0, Math.PI * 2);
@@ -1070,7 +1059,6 @@
             ctx.font = '32px sans-serif';
             ctx.fillText(selectedInspectBrick.emoji || '🧱', 400, 382);
 
-            // Download Trigger
             const link = document.createElement('a');
             link.download = `Certificate_Brick_${selectedInspectBrick.slotIdx + 1}.png`;
             link.href = canvas.toDataURL('image/png');
@@ -1098,3 +1086,9 @@
     </script>
 </body>
 </html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(fixed_html_code)
+
+print("Fixed index.html generated successfully!")
