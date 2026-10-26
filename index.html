@@ -303,13 +303,13 @@
             <div class="px-6 py-4 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between">
                 <div>
                     <div class="text-xs text-slate-400">Total Amount</div>
-                    <div class="text-xl font-black text-amber-400">$1.00 USD / 1.00 €</div>
+                    <div class="text-xl font-black text-amber-400">1.00 € / $1.00</div>
                 </div>
 
                 <!-- Real PayPal Checkout Button Linked to metallox@gmail.com -->
                 <button id="btn-pay-paypal" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-extrabold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition flex items-center gap-2">
                     <i class="fa-brands fa-paypal text-base"></i>
-                    <span>Pay $1.00 with PayPal</span>
+                    <span>Pay 1,00 € with PayPal</span>
                 </button>
             </div>
         </div>
@@ -653,8 +653,8 @@
         });
 
         function loadLocalData() {
-            const versionKey = '1dollarbrick_v4_placed';
-            const museumKey = '1dollarbrick_v4_museum';
+            const versionKey = '1dollarbrick_v5_placed';
+            const museumKey = '1dollarbrick_v5_museum';
 
             try {
                 const savedBricks = localStorage.getItem(versionKey);
@@ -683,8 +683,8 @@
 
         function saveLocalData() {
             try {
-                localStorage.setItem('1dollarbrick_v4_placed', JSON.stringify(placedBricks));
-                localStorage.setItem('1dollarbrick_v4_museum', JSON.stringify(completedMuseum));
+                localStorage.setItem('1dollarbrick_v5_placed', JSON.stringify(placedBricks));
+                localStorage.setItem('1dollarbrick_v5_museum', JSON.stringify(completedMuseum));
             } catch (e) {}
         }
 
@@ -904,7 +904,7 @@
             };
         });
 
-        // --- 8. REAL PAYPAL CHECKOUT (DIRECT LINK TO METALLOX@GMAIL.COM) ---
+        // --- 8. REAL PAYPAL CHECKOUT (DIRECT PAY TO METALLOX@GMAIL.COM VIA _xclick) ---
         document.getElementById('btn-pay-paypal').onclick = () => {
             const nickname = document.getElementById('input-nickname').value.trim();
             if (!nickname) {
@@ -932,9 +932,9 @@
             confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
             playSound('brick');
 
-            // Open PayPal Checkout directly for metallox@gmail.com
+            // Using cmd=_xclick (standard payment) instead of cmd=_donations so personal accounts accept payments without non-profit restrictions
             const itemTitle = `1 Dollar Brick - Slot #${selectedSlotIndex + 1} (${nickname})`;
-            const paypalCheckoutUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=${encodeURIComponent(PAYPAL_RECEIVER_EMAIL)}&lc=US&item_name=${encodeURIComponent(itemTitle)}&amount=1.00&currency_code=EUR`;
+            const paypalCheckoutUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_RECEIVER_EMAIL)}&lc=US&item_name=${encodeURIComponent(itemTitle)}&amount=1.00&currency_code=EUR`;
             
             window.open(paypalCheckoutUrl, '_blank');
         };
@@ -1094,4 +1094,4 @@
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(fixed_html_code)
 
-print("PayPal account metallox@gmail.com successfully linked in index.html!")
+print("Updated index.html with cmd=_xclick successfully!")
