@@ -1,4 +1,4 @@
-html_code = """<!DOCTYPE html>
+fixed_html_code = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -306,10 +306,10 @@ html_code = """<!DOCTYPE html>
                     <div class="text-xl font-black text-amber-400">$1.00 USD / 1.00 €</div>
                 </div>
 
-                <!-- Simulated PayPal Checkout Button -->
+                <!-- Real PayPal Checkout Button Linked to metallox@gmail.com -->
                 <button id="btn-pay-paypal" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 text-white font-extrabold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition flex items-center gap-2">
                     <i class="fa-brands fa-paypal text-base"></i>
-                    <span>Donate $1.00 & Place</span>
+                    <span>Pay $1.00 with PayPal</span>
                 </button>
             </div>
         </div>
@@ -419,6 +419,9 @@ html_code = """<!DOCTYPE html>
 
     <!-- MAIN JAVASCRIPT APP LOGIC -->
     <script>
+        // --- PAYPAL ACCOUNT INTEGRATION ---
+        const PAYPAL_RECEIVER_EMAIL = "metallox@gmail.com";
+
         // --- 1. GAME STATE & DATA STRUCTURES ---
         const PALETTES = [
             '#ef4444', '#f97316', '#f59e0b', '#10b981', 
@@ -650,9 +653,8 @@ html_code = """<!DOCTYPE html>
         });
 
         function loadLocalData() {
-            // Versioned LocalStorage Key to clear old broken data from user browser
-            const versionKey = '1dollarbrick_v3_placed';
-            const museumKey = '1dollarbrick_v3_museum';
+            const versionKey = '1dollarbrick_v4_placed';
+            const museumKey = '1dollarbrick_v4_museum';
 
             try {
                 const savedBricks = localStorage.getItem(versionKey);
@@ -681,8 +683,8 @@ html_code = """<!DOCTYPE html>
 
         function saveLocalData() {
             try {
-                localStorage.setItem('1dollarbrick_v3_placed', JSON.stringify(placedBricks));
-                localStorage.setItem('1dollarbrick_v3_museum', JSON.stringify(completedMuseum));
+                localStorage.setItem('1dollarbrick_v4_placed', JSON.stringify(placedBricks));
+                localStorage.setItem('1dollarbrick_v4_museum', JSON.stringify(completedMuseum));
             } catch (e) {}
         }
 
@@ -902,7 +904,7 @@ html_code = """<!DOCTYPE html>
             };
         });
 
-        // --- 8. SIMULATED PAYPAL CHECKOUT ---
+        // --- 8. REAL PAYPAL CHECKOUT (DIRECT LINK TO METALLOX@GMAIL.COM) ---
         document.getElementById('btn-pay-paypal').onclick = () => {
             const nickname = document.getElementById('input-nickname').value.trim();
             if (!nickname) {
@@ -910,34 +912,31 @@ html_code = """<!DOCTYPE html>
                 return;
             }
 
-            const btn = document.getElementById('btn-pay-paypal');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing...`;
+            // Save brick locally
+            const newBrick = {
+                name: nickname,
+                message: document.getElementById('input-message').value.trim(),
+                social: document.getElementById('input-social').value.trim(),
+                color: currentFormColor,
+                texture: document.getElementById('select-texture').value,
+                emoji: currentFormEmoji,
+                likes: 0,
+                timestamp: new Date().toISOString()
+            };
 
-            setTimeout(() => {
-                const newBrick = {
-                    name: nickname,
-                    message: document.getElementById('input-message').value.trim(),
-                    social: document.getElementById('input-social').value.trim(),
-                    color: currentFormColor,
-                    texture: document.getElementById('select-texture').value,
-                    emoji: currentFormEmoji,
-                    likes: 0,
-                    timestamp: new Date().toISOString()
-                };
+            placedBricks[selectedSlotIndex] = newBrick;
+            saveLocalData();
+            renderGrid();
 
-                placedBricks[selectedSlotIndex] = newBrick;
-                saveLocalData();
-                renderGrid();
+            document.getElementById('modal-donate').classList.add('hidden');
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            playSound('brick');
 
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-brands fa-paypal text-base"></i> Donate $1.00 & Place`;
-                document.getElementById('modal-donate').classList.add('hidden');
-
-                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                playSound('brick');
-
-            }, 1000);
+            // Open PayPal Checkout directly for metallox@gmail.com
+            const itemTitle = `1 Dollar Brick - Slot #${selectedSlotIndex + 1} (${nickname})`;
+            const paypalCheckoutUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=${encodeURIComponent(PAYPAL_RECEIVER_EMAIL)}&lc=US&item_name=${encodeURIComponent(itemTitle)}&amount=1.00&currency_code=EUR`;
+            
+            window.open(paypalCheckoutUrl, '_blank');
         };
 
         // --- 9. ARTWORK COMPLETION & MUSEUM ROTATION ---
@@ -1092,12 +1091,7 @@ html_code = """<!DOCTYPE html>
 </html>
 """
 
-# Let's test Javascript syntax with node or python!
-import re
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(fixed_html_code)
 
-# Check for single quotes unescaped inside single quotes in JS:
-lines = html_code.split('\n')
-for i, l in enumerate(lines, 1):
-    # simple check if line has invalid syntax like name: 'Luca_B', message: 'Un saluto dall'Italia!'
-    if "dall'Italia" in l:
-        print(f"Line {i}: {l}")
+print("PayPal account metallox@gmail.com successfully linked in index.html!")
